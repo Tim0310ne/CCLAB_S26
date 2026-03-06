@@ -3,8 +3,10 @@ let prevMouseX = 0;
 let prevMouseY = 0;
 
 function setup() {
-  createCanvas(800, 500);
-  background(20);
+    let canvas = createCanvas(800, 500);
+    background(20);
+    canvas.id("p5-canvas");
+    canvas.parent("p5-canvas-container");
 }
 
 function draw() {

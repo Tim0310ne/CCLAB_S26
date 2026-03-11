@@ -95,7 +95,6 @@ function drawCreature() {
     let d = dist(mouseX, mouseY, creatureX, creatureY);
 
     if (d > 1) {
-      // flee direction: away from mouse, speed up when closer
       let fleeStrength = map(d, 0, 300, 120, 30, true);
       let runX = creatureX + (dx / d) * fleeStrength;
       let runY = creatureY + (dy / d) * fleeStrength;
@@ -126,7 +125,10 @@ function drawCreature() {
   let disturbed = speed > 20 || isScared;
   let pulse = 1 + sin(frameCount * 0.05) * 0.06;
 
-  let shrink = disturbed ? 0.82 : 1;
+  let shrink = 1;
+  if (disturbed) {
+    shrink = 0.82;
+  }
   scale(shrink);
 
   let currentSize = bodyBaseSize * pulse;
@@ -156,8 +158,12 @@ function drawTentacles(x, y, bodySize) {
     curveVertex(sx, sy);
     for (let j = 0; j <= 8; j++) {
       let p = j / 8;
-      let waveSpeed = isScared ? 0.18 : 0.06;
-      let waveAmp = isScared ? 22 : 12;
+      let waveSpeed = 0.06;
+      let waveAmp = 12;
+      if (isScared) {
+        waveSpeed = 0.18;
+        waveAmp = 22;
+      }
       let wave = sin(frameCount * waveSpeed + i * 1.5 + j * 0.5) * waveAmp * p;
       let tx = sx + cos(angle) * p * tentacleLen + wave;
       let ty = sy + sin(angle) * p * tentacleLen;

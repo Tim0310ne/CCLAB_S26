@@ -109,8 +109,21 @@ function drawCreature() {
   } else {
     // smooth follow mouse
     isScared = false;
-    creatureX = lerp(creatureX, mouseX, 0.05);
-    creatureY = lerp(creatureY, mouseY, 0.05);
+    let mouseSpeed = dist(mouseX, mouseY, prevMouseX, prevMouseY);
+
+    if (mouseSpeed < 2) {
+      // idle wandering when mouse is still
+      let wanderX = mouseX + sin(frameCount * 0.02) * 40;
+      let wanderY = mouseY + cos(frameCount * 0.015) * 30;
+      wanderX = constrain(wanderX, 60, width - 60);
+      wanderY = constrain(wanderY, 60, height - 60);
+      creatureX = lerp(creatureX, wanderX, 0.03);
+      creatureY = lerp(creatureY, wanderY, 0.03);
+    } else {
+      // follow mouse
+      creatureX = lerp(creatureX, mouseX, 0.05);
+      creatureY = lerp(creatureY, mouseY, 0.05);
+    }
   }
 
   translate(creatureX, creatureY);

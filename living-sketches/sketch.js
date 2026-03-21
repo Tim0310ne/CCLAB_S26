@@ -1,96 +1,66 @@
 let scanned = [];
-let eyes;
-let rockets;
-let doodles1;
-let doodles2;
+let dog;
+let robot;
+let Curdog =0;
+let Currobot =0;
+let dogX = -200;
+let dogY = 300;
+// let eyes;
+// let rockets;
+// let doodles1;
+// let doodles2;
 
-let curEye = 0;
-let curRocket = 0;
-let rocketY = 500;
-let rocketSpeedY = 0;
-let curDoodle1 = 0;
-let curDoodle2 = 0;
+// let curEye = 0;
+// let curRocket = 0;
+// let rocketY = 500;
+// let rocketSpeedY = 0;
+// let curDoodle1 = 0;
+// let curDoodle2 = 0;
 
 function preload() {
   for (let i = 1; i <= 6; i++) {
-    scanned.push(loadImage("20260311120631-" + i + ".jpg"));
+    scanned.push(loadImage(i + ".jpg"));
   }
 }
 
 function setup() {
-  createCanvas(800, 500);
-
   eraseBg(scanned, 10);
-  eyes = crop(scanned, 0, 0, 585, 356);
-  rockets = crop(scanned, 1600, 90, 650, 420);
-  doodles1 = crop(scanned, 1514, 1300, 830, 300);
-  doodles2 = crop(scanned, 100, 1300, 366, 311);
+  createCanvas(800, 500);
+  dog = crop(scanned,0, 0, 900, 700);
+  robot =crop(scanned, 900, 0, 900, 700);
+  
+//   eyes = crop(scanned, 0, 0, 585, 356);
+//   rockets = crop(scanned, 1600, 90, 650, 420);
+//   doodles1 = crop(scanned, 1514, 1300, 830, 300);
+//   doodles2 = crop(scanned, 100, 1300, 366, 311);
 }
 
 function draw() {
   background(255);
-
-  // examples: eye
-
   image(
-    eyes[curEye],
-    mouseX,
-    mouseY,
-    eyes[0].width * 0.25,
-    eyes[0].height * 0.25
+    dog[Curdog],
+    dogX,
+    dogY,
+    dog[0].width * 0.3,
+    dog[0].height * 0.3
   );
 
-  curEye = floor((frameCount / 20) % eyes.length);
+  Curdog = floor((frameCount / 30) % dog.length);
+  dogX += 2;
 
-  // rocket
-
-  push();
-  translate(width / 2, rocketY);
-  rotate(radians(-90));
-  imageMode(CENTER);
-  image(
-    rockets[curRocket],
-    0,
-    0,
-    rockets[0].width * 0.25,
-    rockets[0].height * 0.25
-  );
-  pop();
-
-  // rocket animation only has 4 frames
-  curRocket = floor((frameCount / 10) % 4);
-
-  rocketY += rocketSpeedY;
-  rocketSpeedY += -0.1;
-  if (rocketY < -100) {
-    rocketY = 500;
-    rocketSpeedY = 0;
-  }
-
-  // doodles, using sin()
+  let robotX = width / 2;
+  let robotY = 200 + sin(frameCount * 0.1) * 20;
 
   image(
-    doodles1[curDoodle1],
-    0,
-    0,
-    doodles1[0].width * 0.5,
-    doodles1[0].height * 0.5
+    robot[Currobot],
+    robotX,
+    robotY,
+    robot[0].width * 0.3,
+    robot[0].height * 0.3
   );
 
-  curDoodle1 = floor(map(sin(frameCount / 10), -1, 1, 0, doodles1.length));
+  Currobot = floor((frameCount / 30) % robot.length);
 
-  image(
-    doodles2[curDoodle2],
-    400,
-    300,
-    doodles2[0].width * 0.5,
-    doodles2[0].height * 0.5
-  );
-
-  let d = dist(mouseX, mouseY, 485, 355);
-  if (d < 100) {
-    curDoodle2 = floor(map(sin(frameCount / 10), -1, 1, 0, doodles2.length));
-  }
 }
 
 // You shouldn't need to modify these helper functions:

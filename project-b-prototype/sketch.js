@@ -18,7 +18,6 @@ function draw() {
   noStroke();
   textSize(14);
   textAlign(CENTER);
-  text("Press A for arms, press L for legs", width / 2, 30);
 }
 
 function mousePressed() {

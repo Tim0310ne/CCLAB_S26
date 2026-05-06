@@ -2,8 +2,10 @@ let robot;
 let video;
 let faceMesh;
 let faces = [];
+let playmat;
 
 function preload() {
+  playmat = loadImage("playmat.jpg");
   faceMesh = ml5.faceMesh({ maxFaces: 1 });
 }
 
@@ -26,7 +28,7 @@ function windowResized() {
 }
 
 function draw() {
-  background(0);
+  image(playmat, 0, 0, width, height);
 
   let facePoint = getFacePoint();
   robot.update(facePoint);

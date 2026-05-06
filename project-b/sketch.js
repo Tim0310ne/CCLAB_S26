@@ -39,8 +39,7 @@ function draw() {
   image(playmat, 0, 0, width, height);
   video.loadPixels();
 
-  let facePoint = getFacePoint();
-  robot.update(facePoint);
+  robot.update();
   robot.display();
 
   fill(255);
@@ -51,30 +50,6 @@ function draw() {
 
 function gotFaces(results) {
   faces = results;
-}
-
-function getFacePoint() {
-  if (faces.length > 0) {
-    let face = faces[0];
-    let totalX = 0;
-    let totalY = 0;
-
-    for (let j = 0; j < face.keypoints.length; j++) {
-      let keypoint = face.keypoints[j];
-      totalX += keypoint.x;
-      totalY += keypoint.y;
-    }
-
-    let faceX = totalX / face.keypoints.length;
-    let faceY = totalY / face.keypoints.length;
-
-    return {
-      x: map(faceX, 0, video.width, width, 0),
-      y: map(faceY, 0, video.height, 0, height)
-    };
-  }
-
-  return null;
 }
 
 function drawFacePixels(x, y, w, h) {
@@ -146,26 +121,7 @@ class Robot {
     this.rightLeg = new Limb(this.x + 45, this.y + 110, 38, 120, true);
   }
 
-  update(facePoint) {
-    if (facePoint != null) {
-      let faceMove = map(facePoint.x, 0, width, -1, 1);
-      let faceUpDown = map(facePoint.y, 0, height, -1, 1);
-
-      this.head.faceAngle = faceMove * 0.35;
-      this.head.faceLift = faceUpDown * 10;
-      this.leftArm.faceAngle = faceMove * 0.25;
-      this.rightArm.faceAngle = faceMove * 0.25;
-      this.leftLeg.faceAngle = -faceMove * 0.12;
-      this.rightLeg.faceAngle = -faceMove * 0.12;
-    } else {
-      this.head.faceAngle = 0;
-      this.head.faceLift = 0;
-      this.leftArm.faceAngle = 0;
-      this.rightArm.faceAngle = 0;
-      this.leftLeg.faceAngle = 0;
-      this.rightLeg.faceAngle = 0;
-    }
-
+  update() {
     this.head.update();
     this.leftArm.update();
     this.rightArm.update();

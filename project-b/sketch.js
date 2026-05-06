@@ -45,7 +45,8 @@ function draw() {
   fill(255);
   noStroke();
   textSize(14);
-  textAlign(CENTER);
+  textAlign(LEFT);
+  text("drag and press this toy like when you are a child", 24, 32);
 }
 
 function gotFaces(results) {

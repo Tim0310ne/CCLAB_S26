@@ -1,12 +1,19 @@
-let robot;
-let video;
 let faceMesh;
+let video;
 let faces = [];
+
+let options = { maxFaces: 1, refineLandmarks: false, flipped: false };
+
+let robot;
 let playmat;
+let bodyImg;
+let song;
 
 function preload() {
+  faceMesh = ml5.faceMesh(options);
   playmat = loadImage("playmat.jpg");
-  faceMesh = ml5.faceMesh({ maxFaces: 1 });
+  bodyImg = loadImage("body.png");
+  song = loadSound("September.mp3");
 }
 
 function setup() {
@@ -15,7 +22,7 @@ function setup() {
   rectMode(CENTER);
 
   video = createCapture(VIDEO);
-  video.size(400, 300);
+  video.size(640, 480);
   video.hide();
   faceMesh.detectStart(video, gotFaces);
 
@@ -29,6 +36,7 @@ function windowResized() {
 
 function draw() {
   image(playmat, 0, 0, width, height);
+  video.loadPixels();
 
   let facePoint = getFacePoint();
   robot.update(facePoint);
@@ -46,17 +54,18 @@ function gotFaces(results) {
 
 function getFacePoint() {
   if (faces.length > 0) {
-    let points = faces[0].keypoints;
+    let face = faces[0];
     let totalX = 0;
     let totalY = 0;
 
-    for (let i = 0; i < points.length; i++) {
-      totalX += points[i].x;
-      totalY += points[i].y;
+    for (let j = 0; j < face.keypoints.length; j++) {
+      let keypoint = face.keypoints[j];
+      totalX += keypoint.x;
+      totalY += keypoint.y;
     }
 
-    let faceX = totalX / points.length;
-    let faceY = totalY / points.length;
+    let faceX = totalX / face.keypoints.length;
+    let faceY = totalY / face.keypoints.length;
 
     return {
       x: map(faceX, 0, video.width, width, 0),
@@ -65,6 +74,45 @@ function getFacePoint() {
   }
 
   return null;
+}
+
+function drawFacePixels(x, y, w, h) {
+  if (faces.length > 0 && video.pixels.length > 0) {
+    let face = faces[0];
+    let minX = video.width;
+    let maxX = 0;
+    let minY = video.height;
+    let maxY = 0;
+
+    for (let j = 0; j < face.keypoints.length; j++) {
+      let keypoint = face.keypoints[j];
+      minX = min(minX, keypoint.x);
+      maxX = max(maxX, keypoint.x);
+      minY = min(minY, keypoint.y);
+      maxY = max(maxY, keypoint.y);
+    }
+
+    let pixelSize = 10;
+
+    for (let py = -h / 2; py < h / 2; py += pixelSize) {
+      for (let px = -w / 2; px < w / 2; px += pixelSize) {
+        let videoX = map(px, -w / 2, w / 2, maxX, minX);
+        let videoY = map(py, -h / 2, h / 2, minY, maxY);
+
+        videoX = floor(constrain(videoX, 0, video.width - 1));
+        videoY = floor(constrain(videoY, 0, video.height - 1));
+
+        let index = (videoX + videoY * video.width) * 4;
+
+        fill(video.pixels[index], video.pixels[index + 1], video.pixels[index + 2]);
+        noStroke();
+        rect(x + px + pixelSize / 2, y + py + pixelSize / 2, pixelSize, pixelSize);
+      }
+    }
+  } else {
+    fill(245, 209, 92);
+    rect(x, y, w, h, 20);
+  }
 }
 
 function mousePressed() {
@@ -85,6 +133,9 @@ class Robot {
     this.y = y;
     this.bodyW = 220;
     this.bodyH = 220;
+    this.buttonX = this.x + 55;
+    this.buttonY = this.y + 20;
+    this.buttonSize = 36;
     this.head = new Head(this.x, this.y - 170, 150);
     this.leftArm = new Limb(this.x - 115, this.y - 75, 34, 120);
     this.rightArm = new Limb(this.x + 115, this.y - 75, 34, 120);
@@ -123,9 +174,13 @@ class Robot {
     this.leftArm.display();
     this.rightArm.display();
 
+    image(bodyImg, this.x - this.bodyW / 2, this.y - this.bodyH / 2, this.bodyW, this.bodyH);
+
+    fill(220, 20, 20);
+    stroke(120, 0, 0);
+    strokeWeight(3);
+    ellipse(this.buttonX, this.buttonY, this.buttonSize, this.buttonSize);
     noStroke();
-    fill(132, 156, 194);
-    rect(this.x, this.y, this.bodyW, this.bodyH, 28);
 
     this.leftLeg.display();
     this.rightLeg.display();
@@ -133,6 +188,13 @@ class Robot {
   }
 
   mousePressed(mx, my) {
+    if (dist(mx, my, this.buttonX, this.buttonY) < this.buttonSize / 2) {
+      if (!song.isPlaying()) {
+        song.play();
+      }
+      return;
+    }
+
     if (this.head.mousePressed(mx, my)) return;
     if (this.leftArm.mousePressed(mx, my)) return;
     if (this.rightArm.mousePressed(mx, my)) return;
@@ -351,12 +413,10 @@ class Head {
     translate(this.x - this.baseX, this.y - this.baseY);
 
     noStroke();
-    fill(245, 209, 92);
-    rect(0, 0, this.size, this.size * 0.82, 20);
+    fill(60, 80, 115);
+    rect(0, 0, this.size + 18, this.size * 0.82 + 18, 22);
 
-    fill(70);
-    ellipse(-18, -5, 10, 14);
-    ellipse(18, -5, 10, 14);
+    drawFacePixels(0, 0, this.size, this.size * 0.82);
 
     pop();
   }

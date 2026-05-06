@@ -8,6 +8,7 @@ let robot;
 let playmat;
 let bodyImg;
 let song;
+let s = 10;
 
 function preload() {
   faceMesh = ml5.faceMesh(options);
@@ -92,21 +93,23 @@ function drawFacePixels(x, y, w, h) {
       maxY = max(maxY, keypoint.y);
     }
 
-    let pixelSize = 10;
-
-    for (let py = -h / 2; py < h / 2; py += pixelSize) {
-      for (let px = -w / 2; px < w / 2; px += pixelSize) {
-        let videoX = map(px, -w / 2, w / 2, maxX, minX);
-        let videoY = map(py, -h / 2, h / 2, minY, maxY);
+    for (let px = 0; px < w; px += s) {
+      for (let py = 0; py < h; py += s) {
+        let videoX = map(px, 0, w, maxX, minX);
+        let videoY = map(py, 0, h, minY, maxY);
 
         videoX = floor(constrain(videoX, 0, video.width - 1));
         videoY = floor(constrain(videoY, 0, video.height - 1));
 
-        let index = (videoX + videoY * video.width) * 4;
+        let i = (videoX + videoY * video.width) * 4;
 
-        fill(video.pixels[index], video.pixels[index + 1], video.pixels[index + 2]);
+        let r = video.pixels[i + 0];
+        let g = video.pixels[i + 1];
+        let b = video.pixels[i + 2];
+
+        fill(r, g, b);
         noStroke();
-        rect(x + px + pixelSize / 2, y + py + pixelSize / 2, pixelSize, pixelSize);
+        rect(x - w / 2 + px, y - h / 2 + py, s, s);
       }
     }
   } else {
